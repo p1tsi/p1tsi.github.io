@@ -13,7 +13,7 @@ The vulnerability described in this blogpost is about a flaw I discovered in Nor
 
 `preinstall` and `postinstall` scripts are used to prepare the environment before and after the application's installation, for example, removing previous installation's files or moving privileged helper scripts inside the proper directory. Oh, yes... I was forgetting about one thing: they run on the system with root privileges. For this reason, when coming across a .pkg file, it is always a good idea to have a look inside it and check which commands are executed inside preinstall and postinstall scripts.
 
-For this scope there exists an application called [Suspicious Package](https://mothersruin.com/software/SuspiciousPackage/). Or if you prefer to do things manually, at the end of this article there is a bash script that helps you to extract .pkg files.
+For this scope there exists an application called [Suspicious Package](https://mothersruin.com/software/SuspiciousPackage/). Or if you prefer to do things manually, at the end of this article there is a shell script that helps you extract .pkg files.
 
 ## Root Cause Analysis
 
@@ -54,7 +54,7 @@ checkAppLocation() {
 }
 ```
 
-It checks if `/Applications/NordVPN.localized/NordVPN.app` exists and `/Applications/NordVPN.app` does not exist. If true, the just installed (remember, we are inside the postinstall script...) NordVPN.app folder is moved to `/Applications` and the `NordVPN.localized` directory is removed; if false, everything is ok and a log message is printed.
+It checks if `/Applications/NordVPN.localized/NordVPN.app` exists AND `/Applications/NordVPN.app` does not exist. If true, the just installed (remember, we are inside the postinstall script...) NordVPN.app folder is moved to `/Applications` and the `NordVPN.localized` directory is removed; if false, everything is ok and a log message is printed.
 
 The third function moves the binary helper to the proper directory, creates the launch daemon plist file, and loads it. Note that the property 'RunAtLoad' is set to true. It means that as soon as the plist is loaded with the launchctl utility, the binary is run.
 
@@ -104,7 +104,7 @@ Summary:
 When installing an upgrade package that contains an application bundle that does not match the CFBundleIdentifier of the application that is being upgraded, macOS installer creates a .localized directory and installs the upgrade in this directory instead of upgrading the application in place.
 ```
 
-Another important condition that is met is that the preinstall script is not properly written, so it does not completely remove files belonging to a possible previous installation.
+Another important condition met in this scenario is that the `preinstall` script does not perform a deep clean up of the system environment, leaving some files from any eventual previous installation intact.
 
 
 ## Exploit strategy
@@ -133,16 +133,15 @@ removeApp "/Applications/NordVPN.app"
 ...
 ```
 
-In this way, they make sure that inside `/Applications` directory there are no files that could interfere on the installation process.
-
+In this way, they make sure that inside `/Applications` directory there are no files that could interfere with the installation process.
 
 
 ## Considerations
-The attack scenario seems to be quite complex because a couple of preconditions should be met: the attacker should already have code execution as Administrator in order to prepare the environment and have write permissions to /Applications directory; the attacker should trick a real Administrator user to install NordVPN
+The attack scenario seems to be quite complex because a couple of preconditions should be met: the attacker should already have code execution as Administrator in order to prepare the environment and have write permissions to /Applications directory; the attacker should trick a real Administrator user to install NordVPN.
 
 ## Conclusion
 
-This flaw has been reported through HackeOne bug bounty program and the fix was released by the vendor on March 2024.
+This flaw has been reported through HackerOne bug bounty program and the fix was released by the vendor in March 2024.
 
 # Appendix
 
