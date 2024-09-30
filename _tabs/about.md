@@ -4,8 +4,8 @@ icon: fas fa-info-circle
 order: 4
 ---
 
-Reverse Engineering \| Malware Analysis \| Vulnerability Research \| Exploit Development \| Mobile Forensics Investigations 
+Someone spending his spare time having fun with: 
+    
+`Reverse Engineering | Malware Analysis | Vulnerability Research | Exploit Development | Mobile Forensics`.
 
-Interested in these topics and having fun with them in my free time.
-
-Mainly iOS & macOS
+Mainly iOS & macOS.
