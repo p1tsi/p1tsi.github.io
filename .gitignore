@@ -16,8 +16,8 @@ node_modules
 package-lock.json
 
 # IDE configurations
-.idea
 .vscode
+.devcontainer
 
 # Misc
 _sass/dist
