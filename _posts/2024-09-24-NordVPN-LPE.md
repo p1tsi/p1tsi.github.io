@@ -143,49 +143,82 @@ The attack scenario seems to be quite complex because a couple of preconditions 
 
 This flaw has been reported through HackerOne bug bounty program and the fix was released by the vendor in March 2024.
 
+## Changelog
+
+1. Updated the shell script in the appendix making it more general.
+
 # Appendix
 
 To manually extract `preinstall` and `postinstall` scripts and the whole application bundle, you can use the following script.
 
 ```bash
 #!/bin/sh
-
-# Check if the filename is provided
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <pkg_file>"
-    exit 1
-fi
-
+CWD=`pwd`
 PKG_FILE=$1
+PKG_FILENAME="${PKG_FILE%.pkg}"
+EXTRACTION_DIR="$CWD/$PKG_FILENAME"
 
-# Check if the file exists
-if [ ! -f "$PKG_FILE" ]; then
-    echo "File not found: $PKG_FILE"
-    exit 1
-fi
 
-# Setup extraction folder
-EXTRACTION_DIR=extraction
-rm -rf $EXTRACTION_DIR
-mkdir $EXTRACTION_DIR
+check_input() {
+    # Check if the filename is provided
+    if [ $1 -ne 1 ]; then
+        echo "Usage: $0 <pkg_file>"
+        exit 1
+    fi
+
+
+    # Check if the file exists
+    if [ ! -f "$PKG_FILE" ]; then
+        echo "File not found: $PKG_FILE"
+        exit 1
+    fi
+}
+
+
+cleanup_extraction_dir() {
+    
+    echo "[*] Removing previous $EXTRACTION_DIR"
+    rm -rf $EXTRACTION_DIR
+    mkdir $EXTRACTION_DIR
+
+}
+
+extract_pkg() {
+    
+    APP_DIR=$1
+    
+    echo "[*] Extracting $APP_DIR"
+    
+    cd $APP_DIR
+
+    # Extract preinstall and postinstall scripts if exist
+    if [ -f Scripts ]; then
+        gunzip -dc "Scripts" | cpio -i
+    fi
+
+    # Extract Payload
+    gunzip -dc "Payload" | cpio -i
+    
+    cd ..
+    
+}
+
+
+check_input $#
+cleanup_extraction_dir
 
 # Extract .pkg file
+echo "[*] Unpack $PKG_FILE"
 xar -C $EXTRACTION_DIR -xf $PKG_FILE || exit
 
 cd $EXTRACTION_DIR
 
 # Get the value of tag 'pkg-ref' and remove the first character (it seems to be '#')
-APP_DIR=`xmllint --xpath '//pkg-ref/text()' Distribution | cut -c2- `
+APP_DIRS=`xmllint --xpath '//pkg-ref/text()' Distribution | cut -c2- | tr '[:space:]' '\n'`
 
-cd $APP_DIR
-
-# Extract preinstall and postinstall scripts if exist
-if [ -f Scripts ]; then
-    gunzip -dc "Scripts" | cpio -i
-fi
-
-
-# Extract Payload
-gunzip -dc "Payload" | cpio -i
-
+while IFS= read -r line; do
+    if [ ! -z "$line" ]; then
+        extract_pkg "$line"
+    fi
+done <<< "$APP_DIRS"
 ```
