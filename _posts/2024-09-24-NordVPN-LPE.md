@@ -3,6 +3,8 @@ title: MacOS LPE via NordVPN installation
 date: 2024-09-30 18:25:00 +0200
 categories: [macOS, bug bounty]
 tags: [post]
+image:
+    path: assets/img/2024-09-24-NordVPN-LPE/NordVPN_broken.png
 ---
 
 ## Introduction
