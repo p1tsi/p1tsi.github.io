@@ -15,7 +15,7 @@ Lately, I came across an interesting blog post by MobileHackingLab describing a 
 They show how it is possible to use WhatsApp application in a rooted/jailbroken environment to retrieve the device model of the phone for a chosen phone number.
 
 In particular, at first they inject a Frida script inside the application to bypass SSL pinning. 
-Afterwords, they start up a BurpSuite session intercepting the HTTP traffic of the application.
+Afterwards, they start up a BurpSuite session intercepting the HTTP traffic of the application.
 They show that when someone tries to register an account to a freshly installed WhatsApp, the application makes some HTTP
 requests to WhatsApp servers. The "incriminated" one is a POST request to `https://v.whatsapp.net/v2/exist`: sending an encrypted and base64-encoded bunch of data at the `ENC` key, result in a json containing, among the others, the key `wa_old_device_name`. 
 This happens when the primary account for the chosen phone number is already registered in another
