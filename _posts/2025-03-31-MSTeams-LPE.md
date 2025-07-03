@@ -1,7 +1,7 @@
 ---
 title: "MacOS LPE via Microsoft Teams installation"
 date: 2025-03-31 20:20:00 +0200
-categories: [macOS, LPE]
+categories: [macOS, Microsoft Teams, LPE]
 tags: [post]
 image:
     path: assets/img/2025-03-31-MSTeams-LPE/MSTeams_broken.png
